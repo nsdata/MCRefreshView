@@ -50,15 +50,15 @@ extension UIScrollView {
     
     var totalDataCount: Int {
         var totalCount = 0
-        if self.isKindOfClass(UITableView.classForCoder()) {
+        if self.isKind(of: UITableView.classForCoder()) {
             let tableView = self as! UITableView
-            for var section = 0; section < tableView.numberOfSections; ++section {
-                totalCount += tableView.numberOfRowsInSection(section)
+            for section in 0 ..< tableView.numberOfSections {
+                totalCount += tableView.numberOfRows(inSection: section)
             }
-        } else if self.isKindOfClass(UICollectionView.classForCoder()) {
+        } else if self.isKind(of: UICollectionView.classForCoder()) {
             let collectionView = self as! UICollectionView
-            for var section = 0; section < collectionView.numberOfSections(); ++section {
-                totalCount += collectionView.numberOfItemsInSection(section)
+            for section in 0 ..< collectionView.numberOfSections{
+                totalCount += collectionView.numberOfItems(inSection: section)
             }
         }
         return totalCount

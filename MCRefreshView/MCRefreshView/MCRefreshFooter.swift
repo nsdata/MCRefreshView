@@ -15,15 +15,15 @@ class MCRefreshFooter: MCRefreshComponent {
     override func prepare() {
         super.prepare()
         
-        if direction == .Vertical {
+        if direction == .vertical {
             self.height = MCRefreshConst.FooterHeight
-        } else if direction == .Horizontal {
+        } else if direction == .horizontal {
             self.width = MCRefreshConst.FooterWidth
         }
     }
     
-    override func willMoveToSuperview(newSuperview: UIView?) {
-        super.willMoveToSuperview(newSuperview)
+    override func willMove(toSuperview newSuperview: UIView?) {
+        super.willMove(toSuperview: newSuperview)
         
         if let _ = newSuperview {
             // 监听scrollView数据的变化
@@ -31,28 +31,28 @@ class MCRefreshFooter: MCRefreshComponent {
         }
     }
     
-    override func scrollViewContentSizeDidChange(change: [String : AnyObject]?) {
+    override func scrollViewContentSizeDidChange(_ change: [NSKeyValueChangeKey : Any]?) {
         super.scrollViewContentSizeDidChange(change)
         
         if scrollView?.totalDataCount == 0 {
-            self.hidden = automaticallyHidden
+            self.isHidden = automaticallyHidden
         } else {
-            self.hidden = false
+            self.isHidden = false
         }
     }
     
     func endRefreshingWithNoMoreData() {
-        state = .NoMoreData
+        state = .noMoreData
     }
     
     func resetNoMoreData() {
-        state = .Idle
+        state = .idle
     }
     
 }
 
 extension MCRefreshFooter {
-    convenience init(direction: MCRefreshDirection = .Vertical, refreshingClosure closure: MCRefreshingClosure) {
+    convenience init(direction: MCRefreshDirection = .vertical, refreshingClosure closure: @escaping MCRefreshingClosure) {
         self.init(direction: direction)
         self.refreshingClosure = closure
     }

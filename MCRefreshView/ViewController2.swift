@@ -14,11 +14,11 @@ class ViewController2: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        collectionView.registerClass(CollectionViewCell.classForCoder(), forCellWithReuseIdentifier: "Identifier")
+        collectionView.register(CollectionViewCell.classForCoder(), forCellWithReuseIdentifier: "Identifier")
         
-        let footer = MCRefreshBackNormalFooter(direction: .Horizontal)
+        let footer = MCRefreshBackNormalFooter(direction: .horizontal)
         footer.refreshingClosure = {
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(1.0 * Double(NSEC_PER_SEC))), dispatch_get_main_queue()) { () -> Void in
+            DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + Double(Int64(1.0 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)) { () -> Void in
                 self.reloadData()
                 if self.dataSource.count > 33 {
                     footer.endRefreshingWithNoMoreData()
@@ -29,14 +29,14 @@ class ViewController2: UIViewController {
         }
         collectionView.footer = footer
         
-        let header = MCRefreshNormalHeader(direction: .Horizontal)
+        let header = MCRefreshNormalHeader(direction: .horizontal)
         header.refreshingClosure = {
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(1.0 * Double(NSEC_PER_SEC))), dispatch_get_main_queue()) { () -> Void in
+            DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + Double(Int64(1.0 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)) { () -> Void in
                 var array = [String]()
-                for var i = self.dataSource.count; i < self.dataSource.count + 10; ++i {
+                for i in self.dataSource.count ..< self.dataSource.count + 11 {
                     array.append("第\(i + self.dataSource.count)行")
                 }
-                self.dataSource.appendContentsOf(array)
+                self.dataSource.append(contentsOf: array)
                 self.collectionView.reloadData()
                 header.endRefreshing()
             }
@@ -46,22 +46,22 @@ class ViewController2: UIViewController {
 //        collectionView.header.beginRefreshing()
     }
     
-    private func reloadData() {
+    fileprivate func reloadData() {
         var array = [String]()
-        for var i = self.dataSource.count; i < self.dataSource.count + 10; ++i {
+        for i in self.dataSource.count ..< self.dataSource.count + 11 {
             array.append("第\(i)行")
         }
         
-        self.dataSource.appendContentsOf(array)
+        self.dataSource.append(contentsOf: array)
         self.collectionView.reloadData()
     }
     
-    func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return dataSource.count
     }
     
-    func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCellWithReuseIdentifier("Identifier", forIndexPath: indexPath) as! CollectionViewCell
+    func collectionView(_ collectionView: UICollectionView, cellForItemAtIndexPath indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Identifier", for: indexPath) as! CollectionViewCell
         cell.label.text = dataSource[indexPath.row]
         return cell
     }

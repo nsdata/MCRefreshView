@@ -10,11 +10,11 @@ import UIKit
 
 enum MCRefreshDirection {
     // 垂直 & 水平
-    case Vertical, Horizontal
+    case vertical, horizontal
 }
 
 enum MCRefreshState {
-    case Idle, Pulling, Refreshing, WillRefresh, NoMoreData
+    case idle, pulling, refreshing, willRefresh, noMoreData
 }
 
 typealias MCRefreshingClosure = () -> Void
@@ -23,7 +23,7 @@ class MCRefreshComponent: UIView {
     
     // MARK: - Private Property
     // 记录scrollView刚开始的inset
-    var scrollViewOriginalInset: UIEdgeInsets = UIEdgeInsetsZero
+    var scrollViewOriginalInset: UIEdgeInsets = UIEdgeInsets.zero
     // 父控件
     weak var scrollView: UIScrollView?
     
@@ -31,9 +31,9 @@ class MCRefreshComponent: UIView {
     // 正在刷新的回调
     var refreshingClosure: MCRefreshingClosure?
     // 状态
-    var state = MCRefreshState.Pulling
+    var state = MCRefreshState.pulling
     // 方向
-    var direction = MCRefreshDirection.Vertical 
+    var direction = MCRefreshDirection.vertical 
     
     // pan Gesture Recognizer
     var panGestureRecognizer: UIPanGestureRecognizer?
@@ -64,12 +64,12 @@ class MCRefreshComponent: UIView {
     }
     
     init() {
-        super.init(frame: CGRectZero)
+        super.init(frame: CGRect.zero)
         prepare()
     }
     
     init(direction: MCRefreshDirection) {
-        super.init(frame: CGRectZero)
+        super.init(frame: CGRect.zero)
         self.direction = direction
         prepare()
     }
@@ -84,29 +84,29 @@ class MCRefreshComponent: UIView {
         placeSubviews()
     }
     
-    override func willMoveToSuperview(newSuperview: UIView?) {
-        super.willMoveToSuperview(newSuperview)
+    override func willMove(toSuperview newSuperview: UIView?) {
+        super.willMove(toSuperview: newSuperview)
         if let superView = newSuperview {
-            guard superView.isKindOfClass(UIScrollView.classForCoder()) else {
+            guard superView.isKind(of: UIScrollView.classForCoder()) else {
                 return
             }
             removeObservers()
             
-            if direction == .Vertical {
+            if direction == .vertical {
                 self.width = superView.width
                 self.x = 0
-            } else if direction == .Horizontal {
+            } else if direction == .horizontal {
                 self.height = superView.height
                 self.y = 0
             }
             
             scrollView = superView as? UIScrollView
-            scrollView?.alwaysBounceVertical = direction == .Vertical
-            scrollView?.alwaysBounceHorizontal = direction == .Horizontal
+            scrollView?.alwaysBounceVertical = direction == .vertical
+            scrollView?.alwaysBounceHorizontal = direction == .horizontal
             
             scrollViewOriginalInset = scrollView!.contentInset
             
-            state = .Idle
+            state = .idle
             
             addObservers()
         } else {
@@ -114,59 +114,59 @@ class MCRefreshComponent: UIView {
         }
     }
     
-    override func drawRect(rect: CGRect) {
-        super.drawRect(rect)
+    override func draw(_ rect: CGRect) {
+        super.draw(rect)
         
-        if state == .WillRefresh {
-            state = .Refreshing
+        if state == .willRefresh {
+            state = .refreshing
         }
     }
     
     // MARK: KVO
-    private func addObservers() {
-        let options: NSKeyValueObservingOptions = [.New, .Old]
+    fileprivate func addObservers() {
+        let options: NSKeyValueObservingOptions = [.new, .old]
         scrollView?.addObserver(self, forKeyPath: MCRefreshConst.ContentOffset, options: options, context: nil)
         scrollView?.addObserver(self, forKeyPath: MCRefreshConst.ContentSize, options: options, context: nil)
         panGestureRecognizer = self.scrollView?.panGestureRecognizer
         panGestureRecognizer?.addObserver(self, forKeyPath: MCRefreshConst.PanState, options: options, context: nil)
     }
     
-    private func removeObservers() {
+    fileprivate func removeObservers() {
         self.superview?.removeObserver(self, forKeyPath: MCRefreshConst.ContentOffset)
         self.superview?.removeObserver(self, forKeyPath: MCRefreshConst.ContentSize)
         panGestureRecognizer?.removeObserver(self, forKeyPath: MCRefreshConst.PanState)
         panGestureRecognizer = nil
     }
     
-    override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>) {
-        guard self.userInteractionEnabled else {
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+        guard self.isUserInteractionEnabled else {
             return
         }
         
         if keyPath == MCRefreshConst.ContentSize {
-            scrollViewContentSizeDidChange(change)
+            scrollViewContentSizeDidChange(change )
         }
         
-        guard !self.hidden else {
+        guard !self.isHidden else {
             return
         }
         
         if keyPath == MCRefreshConst.ContentOffset {
-            scrollViewContentOffsetDidChange(change)
+            scrollViewContentOffsetDidChange(change )
         } else if keyPath == MCRefreshConst.PanState {
-            scrollViewPanStateDidChange(change)
+            scrollViewPanStateDidChange(change )
         }
     }
     
-    func scrollViewContentOffsetDidChange(change: [String : AnyObject]?) {
+    func scrollViewContentOffsetDidChange(_ change: [NSKeyValueChangeKey : Any]?) {
         
     }
     
-    func scrollViewContentSizeDidChange(change: [String : AnyObject]?) {
+    func scrollViewContentSizeDidChange(_ change: [NSKeyValueChangeKey : Any]?) {
         
     }
     
-    func scrollViewPanStateDidChange(change: [String : AnyObject]?) {
+    func scrollViewPanStateDidChange(_ change: [NSKeyValueChangeKey : Any]?) {
         
     }
     
@@ -176,12 +176,12 @@ class MCRefreshComponent: UIView {
 extension MCRefreshComponent {
     func prepare() {
         // 基本属性
-        if direction == .Vertical {
-            self.autoresizingMask = .FlexibleWidth
+        if direction == .vertical {
+            self.autoresizingMask = .flexibleWidth
         } else {
-            self.autoresizingMask = .FlexibleHeight
+            self.autoresizingMask = .flexibleHeight
         }
-        self.backgroundColor = UIColor.clearColor()
+        self.backgroundColor = UIColor.clear
         
     }
     
@@ -200,29 +200,29 @@ extension MCRefreshComponent {
 // MARK: - Public method
 extension MCRefreshComponent {
     func beginRefreshing() {
-        UIView.animateWithDuration(MCRefreshConst.FastDuration) { () -> Void in
+        UIView.animate(withDuration: MCRefreshConst.FastDuration, animations: { () -> Void in
             self.alpha = 1.0
-        }
+        }) 
         pullingPercent = 1.0
         if (self.window != nil) {
-            state = .Refreshing
+            state = .refreshing
         } else {
-            state = .WillRefresh
+            state = .willRefresh
             // 刷新(预防从另一个控制器回到这个控制器的情况，回来要重新刷新一下)
             self.setNeedsDisplay()
         }
     }
     
     func endRefreshing() {
-        state = .Idle
+        state = .idle
     }
     
     func isRefreshing() -> Bool {
-        return (state == .Refreshing)||(state == .WillRefresh)
+        return (state == .refreshing)||(state == .willRefresh)
     }
     
     func executeRefreshingCallback() {
-        dispatch_async(dispatch_get_main_queue()) { () -> Void in
+        DispatchQueue.main.async { () -> Void in
             if let refreshingClosure = self.refreshingClosure {
                 refreshingClosure()
             }
@@ -233,10 +233,10 @@ extension MCRefreshComponent {
 extension UILabel {
     class func label() -> UILabel {
         let label = UILabel()
-        label.font = UIFont.boldSystemFontOfSize(14.0)
+        label.font = UIFont.boldSystemFont(ofSize: 14.0)
         label.textColor = UIColor(white: 0.4, alpha: 1.0)
-        label.textAlignment = .Center
-        label.backgroundColor = UIColor.clearColor()
+        label.textAlignment = .center
+        label.backgroundColor = UIColor.clear
         return label;
     }
 }

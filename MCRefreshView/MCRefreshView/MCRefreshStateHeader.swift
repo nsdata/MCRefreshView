@@ -8,7 +8,7 @@
 
 import UIKit
 
-typealias MCLastUpdatedTimeText = (NSDate?) -> String
+typealias MCLastUpdatedTimeText = (Date?) -> String
 
 class MCRefreshStateHeader: MCRefreshHeader {
     
@@ -17,7 +17,7 @@ class MCRefreshStateHeader: MCRefreshHeader {
     lazy var lastUpdatedTimeLabel = UILabel.label()
     lazy var stateLabel = UILabel.label()
     
-    private var stateTitles = [MCRefreshState: String]()
+    fileprivate var stateTitles = [MCRefreshState: String]()
     
     override func prepare() {
         super.prepare()
@@ -25,20 +25,20 @@ class MCRefreshStateHeader: MCRefreshHeader {
         self.addSubview(stateLabel)
         self.addSubview(lastUpdatedTimeLabel)
         
-        self.setTitle(MCRefreshConst.HeaderIdleText, forState: .Idle)
-        self.setTitle(MCRefreshConst.HeaderPullingText, forState: .Pulling)
-        self.setTitle(MCRefreshConst.HeaderRefreshingText, forState:  .Refreshing)
+        self.setTitle(MCRefreshConst.HeaderIdleText, forState: .idle)
+        self.setTitle(MCRefreshConst.HeaderPullingText, forState: .pulling)
+        self.setTitle(MCRefreshConst.HeaderRefreshingText, forState:  .refreshing)
     }
     
     override func placeSubviews() {
         super.placeSubviews()
         
-        if stateLabel.hidden {
+        if stateLabel.isHidden {
             return
         }
         
-        if direction == .Vertical {
-            if lastUpdatedTimeLabel.hidden {
+        if direction == .vertical {
+            if lastUpdatedTimeLabel.isHidden {
                 stateLabel.frame = self.bounds;
             } else {
                 // 状态
@@ -46,16 +46,16 @@ class MCRefreshStateHeader: MCRefreshHeader {
                 // 更新时间
                 lastUpdatedTimeLabel.frame = CGRect(x: 0, y: stateLabel.height, width: self.width, height: self.height - stateLabel.height)
             }
-        } else if direction == .Horizontal {
-            if lastUpdatedTimeLabel.hidden {
+        } else if direction == .horizontal {
+            if lastUpdatedTimeLabel.isHidden {
                 stateLabel.frame = self.bounds;
             } else {
                 // 状态
                 stateLabel.frame = CGRect(x: 0, y: -54, width: self.width * 0.5, height: self.height)
-                stateLabel.transform = CGAffineTransformMakeRotation(CGFloat(3 * M_PI_2))
+                stateLabel.transform = CGAffineTransform(rotationAngle: CGFloat(3 * M_PI_2))
                 // 更新时间
                 lastUpdatedTimeLabel.frame = CGRect(x: stateLabel.width, y: -54, width: self.width - stateLabel.width, height: self.height)
-                lastUpdatedTimeLabel.transform = CGAffineTransformMakeRotation(CGFloat(3 * M_PI_2))
+                lastUpdatedTimeLabel.transform = CGAffineTransform(rotationAngle: CGFloat(3 * M_PI_2))
             }
         }
         
@@ -77,10 +77,10 @@ class MCRefreshStateHeader: MCRefreshHeader {
         }
     }
     
-    func setLastUpdatedTimeLabelWithTimeKey(timeKey: String) {
+    func setLastUpdatedTimeLabelWithTimeKey(_ timeKey: String) {
         lastUpdatedTimeKey = timeKey
         
-        let lastUpdatedTime = NSUserDefaults.standardUserDefaults().objectForKey(lastUpdatedTimeKey) as? NSDate
+        let lastUpdatedTime = UserDefaults.standard.object(forKey: lastUpdatedTimeKey) as? Date
         
         if let lastUpdatedTimeText = lastUpdatedTimeText {
             lastUpdatedTimeLabel.text = lastUpdatedTimeText(lastUpdatedTime)
@@ -88,12 +88,12 @@ class MCRefreshStateHeader: MCRefreshHeader {
         }
         
         if let time = lastUpdatedTime {
-            let calendar = NSCalendar.currentCalendar()
-            let unitFlags: NSCalendarUnit = [NSCalendarUnit.Year, NSCalendarUnit.Month, NSCalendarUnit.Day, NSCalendarUnit.Hour, NSCalendarUnit.Minute]
-            let cmp1 = calendar.components(unitFlags, fromDate: time)
-            let cmp2 = calendar.components(unitFlags, fromDate: NSDate())
+            let calendar = Calendar.current
+            let unitFlags: NSCalendar.Unit = [NSCalendar.Unit.year, NSCalendar.Unit.month, NSCalendar.Unit.day, NSCalendar.Unit.hour, NSCalendar.Unit.minute]
+            let cmp1 = (calendar as NSCalendar).components(unitFlags, from: time)
+            let cmp2 = (calendar as NSCalendar).components(unitFlags, from: Date())
             
-            let formatter = NSDateFormatter()
+            let formatter = DateFormatter()
             if cmp1.day == cmp2.day {
                 formatter.dateFormat = "今天 HH:mm"
             } else if cmp1.year == cmp2.year {
@@ -101,7 +101,7 @@ class MCRefreshStateHeader: MCRefreshHeader {
             } else {
                 formatter.dateFormat = "yyyy-MM-dd HH:mm"
             }
-            let timeString = formatter.stringFromDate(time)
+            let timeString = formatter.string(from: time)
             lastUpdatedTimeLabel.text = "最后更新：" + timeString
         } else {
             lastUpdatedTimeLabel.text = "最后更新：无记录"
@@ -111,7 +111,7 @@ class MCRefreshStateHeader: MCRefreshHeader {
 }
 
 extension MCRefreshStateHeader {
-    func setTitle(title: String?, forState state: MCRefreshState) {
+    func setTitle(_ title: String?, forState state: MCRefreshState) {
         if let title = title {
             stateTitles[state] = title
             stateLabel.text = stateTitles[self.state]

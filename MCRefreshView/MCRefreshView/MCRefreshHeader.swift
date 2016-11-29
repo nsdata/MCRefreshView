@@ -12,18 +12,18 @@ class MCRefreshHeader: MCRefreshComponent {
     
     var ignoredScrollViewContentInsetTop: CGFloat = 0.0
     var lastUpdatedTimeKey = MCRefreshConst.UpdatedTimeKey
-    var lastUpdatedTime: NSDate? {
+    var lastUpdatedTime: Date? {
         get {
-            return NSUserDefaults.standardUserDefaults().objectForKey(lastUpdatedTimeKey) as? NSDate
+            return UserDefaults.standard.object(forKey: lastUpdatedTimeKey) as? Date
         }
     }
     
     override func prepare() {
         super.prepare()
         
-        if direction == .Vertical {
+        if direction == .vertical {
             self.height = MCRefreshConst.HeaderHeight
-        } else if direction == .Horizontal {
+        } else if direction == .horizontal {
             self.width = MCRefreshConst.HeaderWidth
         }
     }
@@ -31,26 +31,26 @@ class MCRefreshHeader: MCRefreshComponent {
     override func placeSubviews() {
         super.placeSubviews()
         
-        if direction == .Vertical {
+        if direction == .vertical {
             self.y = -self.height - ignoredScrollViewContentInsetTop
-        } else if direction == .Horizontal {
+        } else if direction == .horizontal {
             self.x = -self.width - ignoredScrollViewContentInsetTop
         }
         
     }
     
-    override func scrollViewContentOffsetDidChange(change: [String : AnyObject]?) {
+    override func scrollViewContentOffsetDidChange(_ change: [NSKeyValueChangeKey : Any]?) {
         super.scrollViewContentOffsetDidChange(change)
         
         // 在刷新的refreshing状态
-        if state == .Refreshing {
+        if state == .refreshing {
             // sectionheader停留解决
             return
         }
         
         scrollViewOriginalInset = scrollView!.contentInset
         
-        if direction == .Vertical {
+        if direction == .vertical {
             let offsetY = scrollView!.offsetY
             let happenOffsetY = -scrollViewOriginalInset.top
             
@@ -60,19 +60,19 @@ class MCRefreshHeader: MCRefreshComponent {
             
             let normalPullingOffsetY = happenOffsetY - self.height
             let pullingPercent = (happenOffsetY - offsetY)/self.height
-            if scrollView!.dragging {
+            if scrollView!.isDragging {
                 self.pullingPercent = pullingPercent
-                if state == .Idle && offsetY < normalPullingOffsetY {
-                    state = .Pulling
-                } else if state == .Pulling && offsetY >= normalPullingOffsetY {
-                    state = .Idle
+                if state == .idle && offsetY < normalPullingOffsetY {
+                    state = .pulling
+                } else if state == .pulling && offsetY >= normalPullingOffsetY {
+                    state = .idle
                 }
-            } else if state == .Pulling {
+            } else if state == .pulling {
                 beginRefreshing()
             } else if pullingPercent < 1 {
                 self.pullingPercent = pullingPercent
             }
-        } else if direction == .Horizontal {
+        } else if direction == .horizontal {
             let offsetX = scrollView!.offsetX
             let happenOffsetX = -scrollViewOriginalInset.left
             
@@ -82,14 +82,14 @@ class MCRefreshHeader: MCRefreshComponent {
             
             let normalPullingOffsetX = happenOffsetX - self.width
             let pullingPercent = (happenOffsetX - offsetX)/self.width
-            if scrollView!.dragging {
+            if scrollView!.isDragging {
                 self.pullingPercent = pullingPercent
-                if state == .Idle && offsetX < normalPullingOffsetX {
-                    state = .Pulling
-                } else if state == .Pulling && offsetX >= normalPullingOffsetX {
-                    state = .Idle
+                if state == .idle && offsetX < normalPullingOffsetX {
+                    state = .pulling
+                } else if state == .pulling && offsetX >= normalPullingOffsetX {
+                    state = .idle
                 }
-            } else if state == .Pulling {
+            } else if state == .pulling {
                 beginRefreshing()
             } else if pullingPercent < 1 {
                 self.pullingPercent = pullingPercent
@@ -105,19 +105,19 @@ class MCRefreshHeader: MCRefreshComponent {
             }
             let oldValue = super.state
             super.state = newValue
-            if newValue == .Idle {
-                if oldValue != .Refreshing {
+            if newValue == .idle {
+                if oldValue != .refreshing {
                     return
                 }
             
-                NSUserDefaults.standardUserDefaults().setObject(NSDate(), forKey: lastUpdatedTimeKey)
-                NSUserDefaults.standardUserDefaults().synchronize()
+                UserDefaults.standard.set(Date(), forKey: lastUpdatedTimeKey)
+                UserDefaults.standard.synchronize()
             
-                UIView.animateWithDuration(MCRefreshConst.SlowDuration, animations: { () -> Void in
-                    if self.direction == .Vertical {
+                UIView.animate(withDuration: MCRefreshConst.SlowDuration, animations: { () -> Void in
+                    if self.direction == .vertical {
                         self.scrollView?.insetTop -= self.height
                         
-                    } else if self.direction == .Horizontal {
+                    } else if self.direction == .horizontal {
                         self.scrollView?.insetLeft -= self.width
                     }
                     
@@ -127,15 +127,15 @@ class MCRefreshHeader: MCRefreshComponent {
                 }, completion: { (finished) -> Void in
                     self.pullingPercent = 0.0
                 })
-            } else if state == .Refreshing {
-                UIView.animateWithDuration(MCRefreshConst.FastDuration, animations: { () -> Void in
-                    if self.direction == .Vertical {
+            } else if state == .refreshing {
+                UIView.animate(withDuration: MCRefreshConst.FastDuration, animations: { () -> Void in
+                    if self.direction == .vertical {
                         let top = self.scrollViewOriginalInset.top + self.height
                         self.scrollView?.insetTop = top
                         
                         self.scrollView?.offsetY = -top
                         
-                    } else if self.direction == .Horizontal {
+                    } else if self.direction == .horizontal {
                         let left = self.scrollViewOriginalInset.left + self.width
                         self.scrollView?.insetLeft = left
                         
@@ -153,8 +153,8 @@ class MCRefreshHeader: MCRefreshComponent {
     }
     
     override func endRefreshing() {
-        if scrollView!.isKindOfClass(UICollectionView.classForCoder()) {
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(0.1 * Double(NSEC_PER_SEC))), dispatch_get_main_queue()) {
+        if scrollView!.isKind(of: UICollectionView.classForCoder()) {
+            DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)) {
                 super.endRefreshing()
             }
         } else {
@@ -165,7 +165,7 @@ class MCRefreshHeader: MCRefreshComponent {
 }
 
 extension MCRefreshHeader {
-    convenience init(direction: MCRefreshDirection = .Vertical, refreshingClosure closure: MCRefreshingClosure) {
+    convenience init(direction: MCRefreshDirection = .vertical, refreshingClosure closure: @escaping MCRefreshingClosure) {
         self.init(direction: direction)
         self.refreshingClosure = closure
     }

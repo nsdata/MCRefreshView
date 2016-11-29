@@ -17,20 +17,20 @@ class MCRefreshBackStateFooter: MCRefreshBackFooter {
     override func prepare() {
         super.prepare()
         
-        setTitle(MCRefreshConst.FooterIdleText, forState: .Idle)
-        setTitle(MCRefreshConst.FooterPullingText, forState: .Pulling)
-        setTitle(MCRefreshConst.FooterRefreshingText, forState: .Refreshing)
-        setTitle(MCRefreshConst.FooterNoMoreDataText, forState: .NoMoreData)
+        setTitle(MCRefreshConst.FooterIdleText, forState: .idle)
+        setTitle(MCRefreshConst.FooterPullingText, forState: .pulling)
+        setTitle(MCRefreshConst.FooterRefreshingText, forState: .refreshing)
+        setTitle(MCRefreshConst.FooterNoMoreDataText, forState: .noMoreData)
     }
     
     override func placeSubviews() {
         super.placeSubviews()
         
-        if direction == .Vertical {
+        if direction == .vertical {
             stateLabel.frame = self.bounds
-        } else if direction == .Horizontal {
+        } else if direction == .horizontal {
             stateLabel.frame = CGRect(x: 0, y: -54, width: self.bounds.width, height: self.bounds.height)
-            stateLabel.transform = CGAffineTransformMakeRotation(CGFloat(3 * M_PI_2))
+            stateLabel.transform = CGAffineTransform(rotationAngle: CGFloat(3 * M_PI_2))
         }
         
         self.addSubview(stateLabel)
@@ -52,7 +52,7 @@ class MCRefreshBackStateFooter: MCRefreshBackFooter {
 
 
 extension MCRefreshBackStateFooter {
-    func setTitle(title: String?, forState state: MCRefreshState) {
+    func setTitle(_ title: String?, forState state: MCRefreshState) {
         if let title = title {
             stateTitles[state] = title
             stateLabel.text = stateTitles[self.state]

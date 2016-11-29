@@ -19,7 +19,7 @@ class ViewController: UIViewController {
         
         let footer = MCRefreshBackNormalFooter()
         footer.refreshingClosure = { (header) in
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(5.0 * Double(NSEC_PER_SEC))), dispatch_get_main_queue()) { () -> Void in
+            DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + Double(Int64(5.0 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)) { () -> Void in
                 self.reloadData()
                 if self.dataSource.count > 33 {
                     footer.endRefreshingWithNoMoreData()
@@ -32,7 +32,7 @@ class ViewController: UIViewController {
         
         let header = MCRefreshNormalHeader()
         header.refreshingClosure = {
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(1.0 * Double(NSEC_PER_SEC))), dispatch_get_main_queue()) { () -> Void in
+            DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + Double(Int64(1.0 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)) { () -> Void in
                 self.count = 0
                 self.dataSource.removeAll()
                 self.reloadData()
@@ -51,33 +51,35 @@ class ViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
-    private var count = 0
-    private var pageIndex = 1
-    private func reloadData() {
+    fileprivate var count = 0
+    fileprivate var pageIndex = 1
+    fileprivate func reloadData() {
         var array = [String]()
-        for var i = count; i < pageIndex * 5; ++i {
+        let y = pageIndex * 5 + 1
+        
+        for i in count ..< y {
             array.append("第\(i)行")
         }
         count += 5
-        pageIndex++
-        self.dataSource.appendContentsOf(array)
+        pageIndex += 1
+        self.dataSource.append(contentsOf: array)
         self.tableView.reloadData()
     }
     
     // MARK: - UITableViewDataSource and UITableViewDelegate
-    func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+    func numberOfSectionsInTableView(_ tableView: UITableView) -> Int {
         return 1
     }
     
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return dataSource.count
     }
     
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+    func tableView(_ tableView: UITableView, cellForRowAtIndexPath indexPath: IndexPath) -> UITableViewCell {
         let Identifier: String = "Identifier"
-        var cell = tableView.dequeueReusableCellWithIdentifier(Identifier)
+        var cell = tableView.dequeueReusableCell(withIdentifier: Identifier)
         if cell == nil {
-            cell = UITableViewCell(style: .Default, reuseIdentifier: Identifier)
+            cell = UITableViewCell(style: .default, reuseIdentifier: Identifier)
         }
         cell?.textLabel?.text = dataSource[indexPath.row]
         return cell!

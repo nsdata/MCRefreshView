@@ -11,14 +11,14 @@ import UIKit
 class MCRefreshBackNormalFooter: MCRefreshBackStateFooter {
     
     let arrowView = UIImageView(image: UIImage(named: "arrow"))
-    var activityIndicatorViewStyle: UIActivityIndicatorViewStyle = .Gray {
+    var activityIndicatorViewStyle: UIActivityIndicatorViewStyle = .gray {
         didSet {
             loadingView.activityIndicatorViewStyle = activityIndicatorViewStyle
             self.setNeedsDisplay()
         }
     }
     
-    private var loadingView: UIActivityIndicatorView = UIActivityIndicatorView(activityIndicatorStyle: .Gray)
+    fileprivate var loadingView: UIActivityIndicatorView = UIActivityIndicatorView(activityIndicatorStyle: .gray)
     
     override func prepare() {
         super.prepare()
@@ -32,7 +32,7 @@ class MCRefreshBackNormalFooter: MCRefreshBackStateFooter {
         super.placeSubviews()
         
         if let size = arrowView.image?.size {
-            if direction == .Vertical {
+            if direction == .vertical {
                 arrowView.size = size
             } else {
                 arrowView.size = CGSize(width: size.height, height: size.width)
@@ -40,11 +40,11 @@ class MCRefreshBackNormalFooter: MCRefreshBackStateFooter {
         }
         
         var arrowCenterX = self.width * 0.5
-        if !stateLabel.hidden && direction == .Vertical {
+        if !stateLabel.isHidden && direction == .vertical {
             arrowCenterX -= 100
         }
         var arrowCenterY = self.height * 0.5
-        if !stateLabel.hidden && direction == .Horizontal {
+        if !stateLabel.isHidden && direction == .horizontal {
             arrowCenterY += 40
         }
         arrowView.center = CGPoint(x: arrowCenterX, y: arrowCenterY)
@@ -62,48 +62,48 @@ class MCRefreshBackNormalFooter: MCRefreshBackStateFooter {
             }
             let oldState = state
             super.state = newValue
-            if state == .Idle {
-                if oldState == .Refreshing {
-                    if direction == .Vertical {
-                        arrowView.transform = CGAffineTransformMakeRotation(-CGFloat(M_PI))
-                    } else if direction == .Horizontal {
-                        arrowView.transform = CGAffineTransformMakeRotation(CGFloat(M_PI_2) + 0.000001)
+            if state == .idle {
+                if oldState == .refreshing {
+                    if direction == .vertical {
+                        arrowView.transform = CGAffineTransform(rotationAngle: -CGFloat(M_PI))
+                    } else if direction == .horizontal {
+                        arrowView.transform = CGAffineTransform(rotationAngle: CGFloat(M_PI_2) + 0.000001)
                     }
                     
-                    UIView.animateWithDuration(MCRefreshConst.SlowDuration, animations: { () -> Void in
+                    UIView.animate(withDuration: MCRefreshConst.SlowDuration, animations: { () -> Void in
                         self.loadingView.alpha = 0.0
                         }, completion: { (finished) -> Void in
                             self.loadingView.alpha = 1.0
                             self.loadingView.stopAnimating()
-                            self.arrowView.hidden = false
+                            self.arrowView.isHidden = false
                     })
                 } else {
-                    arrowView.hidden = false
+                    arrowView.isHidden = false
                     loadingView.stopAnimating()
-                    UIView.animateWithDuration(MCRefreshConst.FastDuration, animations: { () -> Void in
-                        if self.direction == .Vertical {
-                            self.arrowView.transform = CGAffineTransformMakeRotation(0.000001 - CGFloat(M_PI))
-                        } else if self.direction == .Horizontal {
-                            self.arrowView.transform = CGAffineTransformMakeRotation(CGFloat(M_PI_2) + 0.000001)
+                    UIView.animate(withDuration: MCRefreshConst.FastDuration, animations: { () -> Void in
+                        if self.direction == .vertical {
+                            self.arrowView.transform = CGAffineTransform(rotationAngle: 0.000001 - CGFloat(M_PI))
+                        } else if self.direction == .horizontal {
+                            self.arrowView.transform = CGAffineTransform(rotationAngle: CGFloat(M_PI_2) + 0.000001)
                         }
                     })
                     
                 }
-            } else if state == .Pulling {
-                arrowView.hidden = false
+            } else if state == .pulling {
+                arrowView.isHidden = false
                 loadingView.stopAnimating()
-                UIView.animateWithDuration(MCRefreshConst.FastDuration, animations: { () -> Void in
-                    if self.direction == .Vertical {
-                        self.arrowView.transform = CGAffineTransformMakeRotation(-0.000001)
-                    } else if self.direction == .Horizontal {
-                        self.arrowView.transform = CGAffineTransformMakeRotation(CGFloat(3 * M_PI_2))
+                UIView.animate(withDuration: MCRefreshConst.FastDuration, animations: { () -> Void in
+                    if self.direction == .vertical {
+                        self.arrowView.transform = CGAffineTransform(rotationAngle: -0.000001)
+                    } else if self.direction == .horizontal {
+                        self.arrowView.transform = CGAffineTransform(rotationAngle: CGFloat(3 * M_PI_2))
                     }
                 })                
-            } else if state == .Refreshing {
-                arrowView.hidden = true
+            } else if state == .refreshing {
+                arrowView.isHidden = true
                 loadingView.startAnimating()
-            } else if state == .NoMoreData {
-                arrowView.hidden = true
+            } else if state == .noMoreData {
+                arrowView.isHidden = true
                 loadingView.stopAnimating()
             }
         }
