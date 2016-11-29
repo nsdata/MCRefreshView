@@ -14,14 +14,14 @@ private var ReloadDataClosureAssociationKey: UInt8 = 27
 
 extension UIScrollView {
     
-    var header: MCRefreshHeader? {
+    var mcheader: MCRefreshHeader? {
         get {
             return objc_getAssociatedObject(self, &HeaderAssociationKey) as? MCRefreshHeader
         }
         set(newValue) {
-            if header != newValue {
-                if header != nil {
-                    header!.removeFromSuperview()
+            if mcheader != newValue {
+                if mcheader != nil {
+                    mcheader!.removeFromSuperview()
                 }
                 
                 if newValue != nil {
@@ -32,14 +32,14 @@ extension UIScrollView {
         }
     }
     
-    var footer: MCRefreshFooter! {
+    var mcfooter: MCRefreshFooter! {
         get {
             return objc_getAssociatedObject(self, &FooterAssociationKey) as? MCRefreshFooter
         }
         set(newValue) {
-            if footer != newValue {
-                if footer != nil {
-                    footer.removeFromSuperview()
+            if mcfooter != newValue {
+                if mcfooter != nil {
+                    mcfooter.removeFromSuperview()
                 }
                 
                 self.addSubview(newValue)
@@ -65,6 +65,6 @@ extension UIScrollView {
     }
     
     var isHeaderRefreshing: Bool? {
-        return header?.isRefreshing()
+        return mcheader?.isRefreshing()
     }
 }
